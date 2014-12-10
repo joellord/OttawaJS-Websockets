@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>OttawaJS - SocketIO demo</title>
+</head>
+
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-2.1.0-rc1.min.js"></script>
+
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap-theme.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+
+<!-- Load the IP helper -->
+<script type="text/javascript" src="js/getIp.js"></script>
+
+<!-- Load socket.io -->
+<script src="/socket.io/socket.io.js"></script>
+
+<body>
+
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <h1 class="text-center">Socket.io demo</h1>
+        <h2 class="text-center">Try it live: <a href="#"><span id="myIp"></span>/index.html</a></h2>
+    </div>
+</div>
+
+
+<div class="row">
+
+</div>
+
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <p class="text-center">
+            Poke the server
+        </p>
+        <p class="text-center">
+            <button class="btn btn-default" type="button" id="sendSomething">Poke the server</button>
+        </p>
+    </div>
+</div>
+
+</body>
+
+
+
+<script type="text/javascript">
+var socket = io();
+
+var count = 0;
+
+document.getElementById("sendSomething").onclick = function() {
+    socket.emit("someEvent", {data: count});
+    count++;
+};
+
+</script>
+</html>

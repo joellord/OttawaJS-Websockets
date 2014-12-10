@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>OttawaJS - SocketIO demo</title>
+
+    <style>
+        .box {
+            width:800px;
+            position:relative;
+            margin-left:-400px; /* half of width */
+            left:50%;
+        }
+
+        .header-row {
+            background-color:#d9d9d9;
+        }
+    </style>
+</head>
+
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-2.1.0-rc1.min.js"></script>
+
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap-theme.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+
+<!-- Load the IP helper -->
+<script type="text/javascript" src="js/getIp.js"></script>
+
+<!-- Load socket.io -->
+<script src="/socket.io/socket.io.js"></script>
+
+<body>
+
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <h1 class="text-center">Socket.io demo</h1>
+        <h2 class="text-center">Try it live: <a href="#"><span id="myIp"></span>/index.html</a></h2>
+    </div>
+</div>
+
+
+<div class="row">
+
+</div>
+
+<!-- DEMO 3 -->
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <form role="form" class="box">
+        <div class="form-group">
+            <label for="newChatLine">Send new message</label>
+            <input class="form-control" id="newChatLine" placeholder="Enter message">
+        </div>
+        <button type="button" class="btn btn-default" id="sendChatLine">Send</button>
+    </form>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <p class="text-center">
+            <table id="chatBox" class="box">
+                <thead>
+                    <tr>
+                        <td class="header-row" style="width: 15%">NickName</td>
+                        <td class="header-row" style="width: 15%">Time</td>
+                        <td class="header-row" style="width: 70%">Message</td>
+                    </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+        </p>
+    </div>
+</div>
+<!-- /DEMO 3 -->
+
+</body>
+
+
+
+<script type="text/javascript">
+var socket = io();
+
+var nickname = "";
+
+$(document).on("ready", function() {
+    //Get the nickname of the user
+    nickname = prompt("What's your nickname");
+
+    $("#newChatLine").on("keydown", function(e) {
+        if (e.keyCode === 13) {
+            e.preventDefault();
+            $("#sendChatLine").click();
+        }
+    });
+
+    //On button click, send the message to the server
+    $("#sendChatLine").on("click", function(e) {
+        socket.emit("newChatLineFromClient", {
+            message: $("#newChatLine").val(),
+            nickname: nickname
+        });
+        $("#newChatLine").val("");
+    });
+
+    socket.on("newChatLineFromServer", function(data) {
+        var formattedTime = getFormattedTime(data.timestamp);
+        var newTableRow = $("<tr>");
+        newTableRow.append($("<td>").html("<b>" + data.nickname + "</b>"));
+        newTableRow.append($("<td>").html(formattedTime));
+        newTableRow.append($("<td>").html(data.message));
+        newTableRow.prependTo($("#chatBox").find("tbody"));
+    });
+});
+
+
+function getFormattedTime(timestamp) {
+    var newDate = new Date(timestamp);
+    var formattedTime = "";
+
+    formattedTime = newDate.getHours() + ":";
+    formattedTime += (newDate.getMinutes() < 10) ? "0" + newDate.getMinutes() : newDate.getMinutes();
+    formattedTime += ":";
+    formattedTime += (newDate.getSeconds() < 10) ? "0" + newDate.getSeconds() : newDate.getSeconds();
+
+    return formattedTime;
+}
+
+</script>
+</html>

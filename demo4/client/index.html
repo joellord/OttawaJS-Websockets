@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>OttawaJS - SocketIO demo</title>
+
+    <style>
+        .box {
+            width:800px;
+            position:relative;
+            margin-left:-400px; /* half of width */
+            left:50%;
+        }
+
+        .thumbnail {
+            width: 100px;
+        }
+
+        .header-row {
+            background-color:#d9d9d9;
+        }
+    </style>
+</head>
+
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-2.1.0-rc1.min.js"></script>
+
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap-theme.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+
+<!-- Load the IP helper -->
+<script type="text/javascript" src="js/getIp.js"></script>
+
+<!-- Load socket.io -->
+<script src="/socket.io/socket.io.js"></script>
+
+<body>
+
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <h1 class="text-center">Socket.io demo</h1>
+        <h2 class="text-center">Try it live: <a href="#"><span id="myIp"></span>/index.html</a></h2>
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <p class="text-center">
+            <button class="btn btn-default" type="button" id="longProcess">Long Process</button>
+            <span id="completionStatus"></span>
+        </p>
+    </div>
+</div>
+
+<!-- DEMO 3 -->
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <p class="text-center">Latest tweets to @joel__lord</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <p class="text-center">
+            <table id="chatBox" class="box">
+                <thead>
+                    <tr>
+                        <td class="header-row" style="width: 15%">User</td>
+                        <td class="header-row" style="width: 15%">Image Thumbnail</td>
+                        <td class="header-row" style="width: 70%">Message</td>
+                    </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+        </p>
+    </div>
+</div>
+<!-- /DEMO 3 -->
+
+</body>
+
+
+
+<script type="text/javascript">
+var socket = io();
+
+$(document).on("ready", function() {
+
+    socket.on("tweet", function(data) {
+        var newTableRow = $("<tr>");
+        newTableRow.append($("<td>").html("<b>" + data.user.name + "</b>"));
+        var imgUrl = (data.extended_entities && data.extended_entities.media && data.extended_entities.media[0]) ? data.extended_entities.media[0].media_url : "";
+        newTableRow.append($("<td>").html(imgUrl ? "<img class='thumbnail' src='" + imgUrl + "' />" : ""));
+        newTableRow.append($("<td>").html(data.text));
+        newTableRow.prependTo($("#chatBox").find("tbody"));
+    });
+
+    $("#longProcess").on("click", function() {
+        socket.emit("longProcess:start");
+        $("#completionStatus").html("");
+        $("#longProcess").attr("disabled", "disabled");
+    });
+
+    socket.on("longProcess:status", function(data) {
+        $("#completionStatus").html(Math.round(data.percentageProcessed * 100) + "%");
+    });
+
+    socket.on("longProcess:done", function(data) {
+        $("#completionStatus").html("Completed");
+        $("#longProcess").attr("disabled", false);
+    });
+});
+
+
+function getFormattedTime(timestamp) {
+    var newDate = new Date(timestamp);
+    var formattedTime = "";
+
+    formattedTime = newDate.getHours() + ":";
+    formattedTime += (newDate.getMinutes() < 10) ? "0" + newDate.getMinutes() : newDate.getMinutes();
+    formattedTime += ":";
+    formattedTime += (newDate.getSeconds() < 10) ? "0" + newDate.getSeconds() : newDate.getSeconds();
+
+    return formattedTime;
+}
+
+
+</script>
+</html>
